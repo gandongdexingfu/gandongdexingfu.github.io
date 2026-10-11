@@ -359,3 +359,36 @@ footer { border-top: 1px solid var(--line); padding: 22px 0 40px; font-size: 12.
   background: rgba(16, 20, 24, .5); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); opacity: 0; transition: opacity .35s var(--ease), transform .35s var(--ease); pointer-events: none; }
 .screen[href]:hover .screen-go { opacity: 1; transform: translate(-50%, 0); }
 .screen[href]:hover { box-shadow: 0 0 0 1.5px var(--signal), 0 0 70px 4px rgb(var(--beam) / .32), 0 30px 60px -30px rgba(15, 25, 50, .5); }
+
+/* —— 通透：背景是一片淡淡的天光，後面有色光緩慢漂移，上面一層極淡的點陣；所有板子是磨砂玻璃 —— */
+:root { --sky-a: #EEF1F4; --sky-b: #E6EAEC; --orb-1: rgba(47, 91, 255, .14); --orb-2: rgba(255, 190, 140, .16); --orb-3: rgba(80, 200, 190, .10);
+  --glass: rgba(250, 251, 252, .58); --glass-edge: rgba(255, 255, 255, .75); --glass-line: rgba(160, 172, 180, .28); --grid: rgba(105, 115, 122, .16); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --sky-a: #12161A; --sky-b: #171C21; --orb-1: rgba(124, 152, 255, .16); --orb-2: rgba(255, 170, 110, .07); --orb-3: rgba(60, 190, 180, .08);
+    --glass: rgba(30, 36, 42, .5); --glass-edge: rgba(255, 255, 255, .08); --glass-line: rgba(255, 255, 255, .07); --grid: rgba(200, 210, 220, .07); }
+}
+:root[data-theme="dark"] { --sky-a: #12161A; --sky-b: #171C21; --orb-1: rgba(124, 152, 255, .16); --orb-2: rgba(255, 170, 110, .07); --orb-3: rgba(60, 190, 180, .08);
+  --glass: rgba(30, 36, 42, .5); --glass-edge: rgba(255, 255, 255, .08); --glass-line: rgba(255, 255, 255, .07); --grid: rgba(200, 210, 220, .07); }
+body { background: linear-gradient(180deg, var(--sky-a), var(--sky-b) 60%, var(--sky-a)); background-attachment: fixed; isolation: isolate; }
+body::before { content: ""; position: fixed; inset: -20vmax; z-index: -2; pointer-events: none;
+  background: radial-gradient(38vmax 30vmax at 22% 18%, var(--orb-1), transparent 70%), radial-gradient(34vmax 28vmax at 82% 62%, var(--orb-2), transparent 70%), radial-gradient(30vmax 26vmax at 40% 92%, var(--orb-3), transparent 70%);
+  filter: blur(10px); animation: drift 48s ease-in-out infinite alternate; }
+@keyframes drift { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(3vmax, -2vmax) scale(1.05); } 100% { transform: translate(-2vmax, 2vmax) scale(.98); } }
+body::after { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: radial-gradient(var(--grid) 1px, transparent 1.3px); background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(120% 90% at 50% 30%, #000 30%, transparent 85%); mask-image: radial-gradient(120% 90% at 50% 30%, #000 30%, transparent 85%); }
+/* 磨砂玻璃：半透明、把後面的光糊開，上緣一道細高光 */
+.plate, .pair, .fig:not(.bare), .card, .work-fig, .chapters button:hover {
+  background: var(--glass); -webkit-backdrop-filter: blur(20px) saturate(1.25); backdrop-filter: blur(20px) saturate(1.25);
+  box-shadow: inset 0 1px 0 var(--glass-edge), 0 0 0 1px var(--glass-line), 0 18px 40px -30px rgba(20, 30, 50, .25); }
+.card:hover { box-shadow: inset 0 1px 0 var(--glass-edge), 0 0 0 1px var(--signal), 0 18px 40px -24px rgba(20, 30, 60, .35); }
+/* 頂部導覽：固定在上方的一條玻璃，內容從它後面糊糊地滑過 */
+header.top { position: sticky; top: 0; z-index: 40; padding: 16px 0 14px; }
+header.top::before { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 100vw; transform: translateX(-50%); z-index: -1;
+  background: color-mix(in srgb, var(--sky-a) 62%, transparent); -webkit-backdrop-filter: blur(18px) saturate(1.3); backdrop-filter: blur(18px) saturate(1.3); border-bottom: 1px solid var(--glass-line); }
+.story-fig .fig { top: max(76px, calc(50vh - 230px)); top: max(76px, calc(50svh - 230px)); }
+.work .plate { top: 76px; }
+.work .stage { height: clamp(320px, calc(100vh - 350px), 640px); height: clamp(320px, calc(100svh - 350px), 640px); }
+/* 手機：主圖固定在上方，文字從它後面捲過，所以這塊玻璃要厚一點，後面的字只剩一片霧 */
+@media (max-width: 900px) { .story-fig { top: 56px; background: transparent; } .story-fig .fig { background: color-mix(in srgb, var(--sky-a) 88%, transparent); -webkit-backdrop-filter: blur(28px) saturate(1.3); backdrop-filter: blur(28px) saturate(1.3); } }
+@media (prefers-reduced-motion: reduce) { body::before { animation: none; } }
