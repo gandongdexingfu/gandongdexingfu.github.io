@@ -201,12 +201,19 @@ SITE.load('').then(([WORKS, FP]) => {
   // 幕的形狀跟著片子的畫幅：在固定的位子裡長邊撐滿，寬和高一起變（CSS 的 transition 負責滑順）
   const slot = screen.parentElement;
   let shapeK = 9 / 16;
+  const size = k => { const W = slot.clientWidth, H = slot.clientHeight; return k > W / H ? [W, W / k, W, H] : [H * k, H, W, H]; };
   const fit = k => {
-    const W = slot.clientWidth, H = slot.clientHeight, w = k > W / H ? W : H * k, h = k > W / H ? W / k : H;
+    const [w, h, , H] = size(k);
     screen.style.width = `${Math.round(w)}px`; screen.style.height = `${Math.round(h)}px`;
     sread.style.transform = `translateY(${Math.round(-(H - h) / 2)}px)`; // 讀數貼著幕的下緣走
   };
-  fit(shapeK); addEventListener('resize', () => fit(shapeK));
+  // 右邊的說明跟著幕：永遠離幕的右緣同一段距離（幕窄，字欄就往左靠、變寬）；行距和段距照幕的高矮鬆緊
+  const hug = k => {
+    const [w, , W] = size(k), a = 9 * Math.PI / 180, seen = w * Math.cos(a) * 900 / (900 - w * Math.sin(a)); // 幕有 9° 透視，右緣看起來比實際寬
+    peek.style.marginLeft = `${-Math.round(W - seen)}px`;
+    peek.dataset.shape = k > 1.25 ? 'wide' : k >= .8 ? 'square' : 'tall';
+  };
+  fit(shapeK); hug(shapeK); addEventListener('resize', () => { fit(shapeK); hug(shapeK); });
   // 換片：幕先暗一下，換上新片，再帶一點閃爍亮起來（像真的幻燈機）；畫幅不同時，幕在暗著的時候變形
   let swapT = 0, litT = 0;
   const project = i => {
@@ -215,12 +222,13 @@ SITE.load('').then(([WORKS, FP]) => {
     const w = WORKS[i], k = w ? SITE.ratio(w).k : shapeK, morph = Math.abs(k - shapeK) > .01; // 空格「製作中」不改形狀
     clearTimeout(swapT); clearTimeout(litT);
     screen.classList.remove('flick'); screen.classList.add('dark');
-    if (morph) { shapeK = k; fit(k); }
+    if (morph) { shapeK = k; fit(k); peek.classList.add('away'); } // 幕變形時字先淡出，換好位置再回來，不看它一行一行重排
     swapT = setTimeout(() => {
+      if (morph) hug(k);
       if (w) { vid.poster = `media/${w.id}.webp`; vid.src = `media/${w.id}.mp4`; vid.play().catch(() => {}); } else { vid.pause(); vid.removeAttribute('src'); vid.removeAttribute('poster'); vid.load(); }
       text(i); readout();
     }, calm ? 0 : 160);
-    litT = setTimeout(() => { screen.classList.remove('dark'); void screen.offsetWidth; screen.classList.add('flick'); }, calm ? 0 : morph ? 520 : 170);
+    litT = setTimeout(() => { screen.classList.remove('dark'); void screen.offsetWidth; screen.classList.add('flick'); peek.classList.remove('away'); }, calm ? 0 : morph ? 520 : 170);
   };
   // 滑過別張：幕上淡淡浮出它的影子，像對焦前
   const preview = i => {
