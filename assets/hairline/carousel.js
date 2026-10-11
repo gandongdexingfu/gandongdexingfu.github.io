@@ -6,7 +6,9 @@
  * it a little, and the tray stays still; pressing it turns the tray to bring
  * it to the reading place. Dragging across turns the tray by hand; let go and
  * it settles into the nearest slot. At rest the newest film is at the reading
- * place and its top carries the bright mark.
+ * place and its top carries the bright mark. Every mount is the same square, as
+ * real slide mounts are; only the window cut in it follows the film's frame:
+ * tall, square or wide, and the picture sits in the window at its own shape.
  *
  * Picking is tested against where the tray is going (the spring's target),
  * never where it is on screen (rule 01). Slides are re-ordered back to front
@@ -17,7 +19,7 @@ const {
   spring, stepS, mk, place, flatDot, pointer, put, register, disposer, solid,
 } = HL;
 
-const ITEMS = (typeof BIN !== "undefined" && BIN) || [["小麻雀追袋記", 33, "sparrow"], ["光的演變", 92, "lamp"]]; // newest first; [name, seconds, picture]
+const ITEMS = (typeof BIN !== "undefined" && BIN) || [["小麻雀追袋記", 33, "sparrow", 9 / 16], ["光的演變", 92, "lamp", 9 / 16]]; // newest first; [name, seconds, picture, frame width / height]
 
 /** What each film's slide shows in its window, in the window's own units (u across, v up, 0 to 1): open lines and closed shapes. */
 const ring = (cu, cv, ru, rv, n = 14) => Array.from({ length: n }, (_, k) => [cu + Math.cos((k / n) * 6.283) * ru, cv + Math.sin((k / n) * 6.283) * rv]);
@@ -29,7 +31,7 @@ const PICS = {
   lamp: { open: [[[0.42, 0.37], [0.58, 0.37]]],
     shut: [[[0.24, 0.06], [0.76, 0.06], [0.73, 0.18], [0.6, 0.3], [0.64, 0.4], [0.7, 0.55], [0.68, 0.72], [0.58, 0.84], [0.56, 0.95], [0.44, 0.95], [0.42, 0.84], [0.32, 0.72], [0.3, 0.55], [0.36, 0.4], [0.4, 0.3], [0.27, 0.18]], [[0.5, 0.48], [0.54, 0.56], [0.53, 0.62], [0.5, 0.7], [0.47, 0.62], [0.46, 0.56]]] },
 };
-const N = 6, RO = 68, RI = 26, TH = 10, R0 = 30, R1 = 62, SH = 32, RISE = 20, PEEK = 7;
+const N = 6, RO = 68, RI = 26, TH = 10, R0 = 30, R1 = 62, SH = 32, RISE = 20, PEEK = 7, WIN = 25;
 const READ = -Math.PI / 4, STEP = (2 * Math.PI) / N, NEWEST = 0;
 const slot = (i) => ITEMS[i] || ["製作中", null];
 const wrap = (i) => ((i % N) + N) % N;
@@ -53,8 +55,9 @@ function mount({ stage, svg, read }, value) {
   mk("path", { d: poly(circ(5, 16).map((q) => P(q.u, q.v, TH + 8))), class: "nf lo" }, hub.g);
 
   const slides = Array.from({ length: N }, (_, i) => {
-    const [name, s, pic] = slot(i), film = s != null, grp = mk("g", {}, layer);
-    return { name, film, grp, back: mk("path", { class: "lo" }, grp), face: mk("path", { class: film ? "sil" : "lo" }, grp), base: film ? "sil" : "lo", win: mk("path", { class: "nf lo" }, grp), pic: film ? mk("path", { class: "nf" }, grp) : null, art: PICS[pic], lift: spring(0, { eps: 0.05 }) };
+    const [name, s, pic, k = 9 / 16] = slot(i), film = s != null, grp = mk("g", {}, layer);
+    const ww = k >= 1 ? WIN : WIN * k, wh = k >= 1 ? WIN / k : WIN; // the window: its long side fills the mount's opening
+    return { name, film, grp, back: mk("path", { class: "lo" }, grp), face: mk("path", { class: film ? "sil" : "lo" }, grp), base: film ? "sil" : "lo", win: mk("path", { class: "nf lo" }, grp), pic: film ? mk("path", { class: "nf" }, grp) : null, art: PICS[pic], ww, wh, lift: spring(0, { eps: 0.05 }) };
   });
   const mark = flatDot(g, C, 1.5, "dot");
 
@@ -73,9 +76,11 @@ function mount({ stage, svg, read }, value) {
       const q = quad(i, turn.x, S.lift.x, 0.8), b = quad(i, turn.x, S.lift.x, -0.8), z0 = q.z0;
       S.face.setAttribute("d", poly(q.pts));
       S.back.setAttribute("d", poly(b.pts));
-      S.win.setAttribute("d", S.film ? poly([q.w(R0 + 5, z0 + 5), q.w(R1 - 5, z0 + 5), q.w(R1 - 5, z0 + SH - 5), q.w(R0 + 5, z0 + SH - 5)]) : "");
+      const cu = (R0 + R1) / 2, cz = z0 + SH / 2, hw = S.ww / 2, hh = S.wh / 2;
+      S.win.setAttribute("d", S.film ? poly([q.w(cu - hw, cz - hh), q.w(cu + hw, cz - hh), q.w(cu + hw, cz + hh), q.w(cu - hw, cz + hh)]) : "");
       if (S.pic && S.art) {
-        const at = ([u, v]) => q.w(R0 + 6 + u * (R1 - R0 - 12), z0 + 6 + v * (SH - 12));
+        const side = Math.min(S.ww, S.wh) - 2; // the picture keeps its own shape, centred in the window
+        const at = ([u, v]) => q.w(cu + (u - 0.5) * side, cz + (v - 0.5) * side);
         S.pic.setAttribute("d", S.art.open.map((l) => seg(at(l[0]), at(l[1])) + l.slice(2).map((p, k) => seg(at(l[k + 1]), at(p))).join("")).join("") + S.art.shut.map((l) => poly(l.map(at))).join(""));
       }
       return [q.depth, S.grp];

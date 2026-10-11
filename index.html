@@ -175,7 +175,7 @@ SITE.load('').then(([WORKS, FP]) => {
   const st0 = new URLSearchParams(location.search).get('style'); if (st0 && styles.includes(st0)) apply(st0);
 
   // —— 幻燈機：轉盤上一支作品一張幻燈片（新到舊），空位是「製作中」；閱讀位置的那張投在幕上 ——
-  window.BIN = WORKS.map(w => [w.title, FP[w.id].dur, w.thumb]);
+  window.BIN = WORKS.map(w => [w.title, FP[w.id].dur, w.thumb, SITE.ratio(w).k]);
   const shelf = document.getElementById('shelf'), screen = document.getElementById('screen'), vid = screen.querySelector('video'), ghost = screen.querySelector('.ghost');
   const peek = document.getElementById('peek'), $ = c => peek.querySelector(c), sread = document.getElementById('screenRead'), go = null;
   const mmss = t => `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(Math.floor(t % 60)).padStart(2, '0')}`;
