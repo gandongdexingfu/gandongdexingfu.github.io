@@ -3,6 +3,9 @@ const SITE = (() => {
   const NS = 'http://www.w3.org/2000/svg';
   const fmt = t => { const m = Math.floor(t / 60), s = (t % 60).toFixed(1).padStart(4, '0'); return `${String(m).padStart(2, '0')}:${s}`; };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  // 畫幅：works.json 的 ratio 寫成 "16:9"、"1:1"、"2.39:1"；沒寫就是直版 9:16
+  const ratio = w => { const m = /^\s*([\d.]+)\s*[:/x]\s*([\d.]+)\s*$/.exec((w && w.ratio) || ''); const a = m ? +m[1] : 9, b = m ? +m[2] : 16; return { k: a / b, css: `${a} / ${b}`, shape: a / b > 1.25 ? 'wide' : a / b >= .8 ? 'square' : 'tall' }; };
+  const arStyle = w => { const r = ratio(w); return `--ar: ${r.css}; --k: ${r.k.toFixed(4)};`; };
   const load = base => Promise.all([fetch(base + 'works.json').then(r => r.json()), fetch(base + 'media/fingerprints.json').then(r => r.json())]);
   const svgEl = (tag, attrs) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
   // 影片接近畫面時才開始載入
@@ -53,7 +56,7 @@ const SITE = (() => {
   }
   const plateHTML = (w, base, { link = true } = {}) => `
       <div class="plate-head"><span>${w.fig}</span><span><span class="style-tag">${esc(w.style)}</span>　${w.date}</span></div>
-      <div class="stage" tabindex="0" aria-label="${esc(w.title)}：左右移動以瀏覽畫面">
+      <div class="stage" style="${arStyle(w)}" tabindex="0" aria-label="${esc(w.title)}：左右移動以瀏覽畫面">
         <img src="${base}media/${w.id}.webp" alt="${esc(w.title)}的畫面" loading="lazy" decoding="async">
         <video data-src="${base}media/${w.id}.mp4" muted playsinline preload="none" poster="${base}media/${w.id}.webp"></video>
         <span class="hint">左右移動瀏覽</span>${link ? '' : '<button class="big-play" type="button" aria-label="播放（有聲）"><span class="ring"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.8v8.4L10.2 6z"/></svg></span><span class="sound">有聲</span></button>'}
@@ -61,5 +64,5 @@ const SITE = (() => {
       ${link ? `<div class="title"><h2><a href="${base}works/${w.id}/">${esc(w.title)}</a></h2><div class="en">${esc(w.en)}</div><p>${esc(w.blurb)}</p></div>` : ''}
       <div class="print" aria-hidden="true"><svg viewBox="0 0 1000 54" preserveAspectRatio="none"></svg></div>
       <div class="readout"><span><b class="t">00:00.0</b> <span class="c">${esc(w.chapters[0][1])}</span></span><span class="dur"></span></div>`;
-  return { fmt, esc, load, mount, plateHTML };
+  return { fmt, esc, load, mount, plateHTML, ratio, arStyle };
 })();

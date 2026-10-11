@@ -7,6 +7,13 @@ SITE = 'https://gandongdexingfu.github.io/'
 works = json.loads((ROOT / 'works.json').read_text())
 e = html.escape
 
+def shape(w):
+    # 畫幅：和 assets/site.js 的 SITE.ratio 同一套規則
+    import re
+    m = re.match(r'^\s*([\d.]+)\s*[:/x]\s*([\d.]+)\s*$', w.get('ratio') or '')
+    k = float(m[1]) / float(m[2]) if m else 9 / 16
+    return 'wide' if k > 1.25 else 'square' if k >= .8 else 'tall'
+
 def code_html(src):
     out = []
     for line in src.split('\n'):
@@ -62,7 +69,7 @@ for n, w in enumerate(works):
   </header>
   <div class="crumb"><a href="../../">全部作品</a>　/　<a href="../../?style={e(w['style'])}">{e(w['style'])}</a></div>
 
-  <section class="work">
+  <section class="work {shape(w)}">
     <article class="plate" id="player" data-id="{w['id']}"></article>
     <div>
       <h1>{e(w['title'])}</h1>

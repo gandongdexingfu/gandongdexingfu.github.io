@@ -44,7 +44,7 @@ nav.top a:hover { color: var(--ink); }
 .works { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; padding-bottom: 96px; }
 .plate { background: var(--plate); border-radius: 14px; padding: 18px 20px 16px; box-shadow: 0 0 0 1px var(--faint); display: flex; flex-direction: column; }
 .plate-head, .plate-foot { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11.5px; color: var(--dim); }
-.stage { position: relative; margin: 16px auto 0; width: min(100%, 300px); aspect-ratio: 9 / 16; border-radius: 6px; overflow: hidden; background: var(--faint); cursor: ew-resize; }
+.stage { position: relative; margin: 16px auto 0; width: min(100%, 300px); aspect-ratio: var(--ar, 9 / 16); border-radius: 6px; overflow: hidden; background: var(--faint); cursor: ew-resize; }
 .stage video, .stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 .stage .hint { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); font-family: var(--mono); font-size: 11px; color: #fff; background: rgba(20,24,28,.55); padding: 3px 9px; border-radius: 999px; pointer-events: none; transition: opacity .3s; white-space: nowrap; }
 .stage:hover .hint, .stage.scrubbing .hint { opacity: 0; }
@@ -133,6 +133,7 @@ footer { border-top: 1px solid var(--line); padding: 22px 0 40px; font-size: 12.
   .work { grid-template-columns: 1fr; gap: 28px; }
   .work .plate { position: static; }
   .work .stage { width: min(100%, 340px); }
+  .work.square .stage, .work.wide .stage { width: 100%; height: auto; }
   .pair { grid-template-columns: 1fr; }
   .pair .code { border-right: 0; border-bottom: 1px solid var(--faint); }
   .pair figure img { aspect-ratio: 4 / 3; }
@@ -216,7 +217,8 @@ footer { border-top: 1px solid var(--line); padding: 22px 0 40px; font-size: 12.
 .card[hidden] { display: none; }
 .card:hover { box-shadow: 0 0 0 1px var(--signal), 0 18px 40px -24px rgba(20, 30, 60, .35); }
 .card-head { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11.5px; color: var(--dim); }
-.card-stage { position: relative; margin: 16px auto 0; width: min(100%, 280px); aspect-ratio: 9 / 16; border-radius: 6px; overflow: hidden; background: var(--faint); cursor: pointer; }
+.card-stage { position: relative; margin: 16px auto 0; width: min(100%, 280px); aspect-ratio: var(--ar, 9 / 16); border-radius: 6px; overflow: hidden; background: var(--faint); cursor: pointer; }
+.card-stage.wide, .card-stage.square { width: 100%; }
 .card-stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 .card-stage img { transition: transform 1.2s var(--ease); }
 .card:hover .card-stage img { transform: scale(1.025); }
@@ -288,7 +290,7 @@ footer { border-top: 1px solid var(--line); padding: 22px 0 40px; font-size: 12.
 
 /* —— 首頁：幻燈機（電腦版）——
    轉盤懸在左邊、輕輕浮動；閱讀位置的幻燈片射出光束，打在右邊直式的幕上，幕裡無聲放著那支片 */
-.projector { position: relative; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 40px; align-items: center; margin: 8px 0 110px; }
+.projector { position: relative; display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 40px; align-items: center; margin: 8px 0 110px; }
 .proj-tray { position: relative; z-index: 2; }
 .fig.bare { background: none; box-shadow: none; padding: 0; }
 .fig.bare .fig-head { padding: 0 6px; }
@@ -310,9 +312,11 @@ footer { border-top: 1px solid var(--line); padding: 22px 0 40px; font-size: 12.
 .dust { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; mix-blend-mode: screen; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .projector::before { display: none; } }
 :root[data-theme="dark"] .projector::before { display: none; }
-.proj-screen { position: relative; z-index: 2; display: grid; grid-template-columns: minmax(0, 250px) minmax(0, 1fr); column-gap: 26px; align-items: center; }
-.screen { position: relative; display: block; aspect-ratio: 9 / 16; border-radius: 4px; overflow: hidden; background: #0d1013; transform: perspective(900px) rotateY(-9deg); transform-origin: left center;
-  box-shadow: 0 0 0 1px var(--faint), 0 0 70px 4px rgb(var(--beam) / .32), 0 30px 60px -30px rgba(15, 25, 50, .5); transition: filter .16s, box-shadow .6s; }
+/* 幕的位子是固定的（--sw × --sh），幕在裡面照片子的畫幅變形：長邊撐滿，寬和高同時變；旁邊的字不會跟著跳 */
+.proj-screen { position: relative; z-index: 2; display: grid; grid-template-columns: var(--sw) minmax(0, 1fr); column-gap: 26px; align-items: center; --sw: clamp(250px, 27vw, 340px); --sh: 444px; }
+.screen-slot { grid-column: 1; width: var(--sw); height: var(--sh); display: grid; place-items: center; }
+.screen { position: relative; display: block; width: 250px; height: 444px; border-radius: 4px; overflow: hidden; background: #0d1013; transform: perspective(900px) rotateY(-9deg); transform-origin: left center;
+  box-shadow: 0 0 0 1px var(--faint), 0 0 70px 4px rgb(var(--beam) / .32), 0 30px 60px -30px rgba(15, 25, 50, .5); transition: filter .16s, box-shadow .6s, width .58s var(--ease), height .58s var(--ease); }
 .screen video, .screen .ghost { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .screen video { view-transition-name: film; }
 /* 投影的質感：暗角、邊緣微微散開、一層細顆粒 */
@@ -328,7 +332,7 @@ footer { border-top: 1px solid var(--line); padding: 22px 0 40px; font-size: 12.
 .blank-frame { position: absolute; inset: 16px; border: 1px dashed rgba(255, 255, 255, .28); border-radius: 3px; display: none; }
 .screen.blank .blank-frame { display: block; }
 .screen.blank { cursor: default; }
-.screen-read { grid-column: 1; margin-top: 12px; font-family: var(--mono); font-size: 11.5px; color: var(--dim); letter-spacing: .03em; white-space: nowrap; }
+.screen-read { grid-column: 1; margin-top: 12px; transition: transform .58s var(--ease); font-family: var(--mono); font-size: 11.5px; color: var(--dim); letter-spacing: .03em; white-space: nowrap; }
 .proj-text { grid-column: 2; grid-row: 1 / 3; }
 .proj-text .card-head { gap: 12px; }
 .proj-text h3 { font-family: "Noto Sans TC", var(--sans); font-weight: 400; font-size: 28px; margin: 14px 0 0; letter-spacing: .02em; }
@@ -392,3 +396,14 @@ header.top::before { content: ""; position: absolute; top: 0; bottom: 0; left: 5
 /* 手機：主圖固定在上方，文字從它後面捲過，所以這塊玻璃要厚一點，後面的字只剩一片霧 */
 @media (max-width: 900px) { .story-fig { top: 56px; background: transparent; } .story-fig .fig { background: color-mix(in srgb, var(--sky-a) 88%, transparent); -webkit-backdrop-filter: blur(28px) saturate(1.3); backdrop-filter: blur(28px) saturate(1.3); } }
 @media (prefers-reduced-motion: reduce) { body::before { animation: none; } }
+
+/* —— 畫幅：方形和橫版的作品頁 —— */
+/* 方形（4:5 到 5:4）：還是左片右字，片的欄位放寬，高度照螢幕縮 */
+.work.square { grid-template-columns: minmax(0, 520px) minmax(0, 1fr); }
+.work.square .stage { height: auto; width: min(100%, calc(100svh - 350px)); min-width: min(100%, 320px); }
+/* 橫版：片放在上面佔滿寬，字和線稿圖移到下面 */
+.work.wide { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+.work.wide .plate { position: static; }
+.work.wide .stage { height: auto; width: min(100%, calc((100svh - 330px) * var(--k))); min-width: min(100%, 480px); }
+.work.wide > div { max-width: 760px; }
+@media (max-width: 860px) { .work.square .stage, .work.wide .stage { width: 100%; min-width: 0; height: auto; } }
