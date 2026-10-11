@@ -83,13 +83,13 @@
       </defs><g class="beam-light"><path class="halo" fill="url(#gHalo)" filter="url(#bW)"/><path class="body" fill="url(#gBody)" filter="url(#bM)"/><path class="core" fill="url(#gCore)" filter="url(#bS)"/><circle class="src" r="16" fill="url(#gSrc)"/></g><path class="beam-edge"/></svg>
       <canvas class="dust" id="dust" aria-hidden="true"></canvas>
       <div class="proj-screen">
-        <a class="screen" id="screen" href="#" aria-label="進入這支片">
+        <div class="screen-slot"><a class="screen" id="screen" href="#" aria-label="進入這支片">
           <video muted playsinline loop preload="none"></video>
           <img class="ghost" alt="" aria-hidden="true">
           <span class="grain" aria-hidden="true"></span>
           <span class="blank-frame" aria-hidden="true"></span>
           <span class="screen-go" aria-hidden="true">看這支片 →</span>
-        </a>
+        </a></div>
         <div class="screen-read" id="screenRead">SLIDE 01 · 00:00 / 00:00 · 24 fps</div>
         <div class="proj-text" id="peek">
           <div class="card-head"><span class="p-fig"></span><span class="p-tag"></span></div>
@@ -167,7 +167,7 @@ SITE.load('').then(([WORKS, FP]) => {
     const a = document.createElement('a'); a.className = 'card reveal'; a.dataset.tilt = '6'; a.href = `works/${w.id}/`; a.dataset.style = w.style; a.style.setProperty('--d', i * 90 + 'ms');
     a.innerHTML = `
       <div class="card-head"><span>${w.fig}</span><span><span class="style-tag">${SITE.esc(w.style)}</span>　${w.date}</span></div>
-      <div class="card-stage"><img src="media/${w.id}.webp" alt="${SITE.esc(w.title)}的畫面" loading="lazy" decoding="async"></div>
+      <div class="card-stage ${SITE.ratio(w).shape}" style="${SITE.arStyle(w)}"><img src="media/${w.id}.webp" alt="${SITE.esc(w.title)}的畫面" loading="lazy" decoding="async"></div>
       <div class="card-body"><h3>${SITE.esc(w.title)}</h3><div class="en">${SITE.esc(w.en)}</div><p>${SITE.esc(w.blurb)}</p></div>
       <div class="card-go"><span>看這支片</span><span class="meta">${D.toFixed(0)} 秒 · ${n} 段</span><span class="arrow" aria-hidden="true">→</span></div>`;
     grid.appendChild(a); watch(a);
@@ -198,17 +198,29 @@ SITE.load('').then(([WORKS, FP]) => {
   };
   const readout = () => { const w = WORKS[onScreen], D = w ? FP[w.id].dur : 0; sread.textContent = `SLIDE ${String(slideNo).padStart(2, '0')} · ${mmss(w ? vid.currentTime : 0)} / ${mmss(D)} · 24 fps`; };
   vid.addEventListener('timeupdate', readout);
-  // 換片：幕先暗一下，換上新片，再帶一點閃爍亮起來（像真的幻燈機）
+  // 幕的形狀跟著片子的畫幅：在固定的位子裡長邊撐滿，寬和高一起變（CSS 的 transition 負責滑順）
+  const slot = screen.parentElement;
+  let shapeK = 9 / 16;
+  const fit = k => {
+    const W = slot.clientWidth, H = slot.clientHeight, w = k > W / H ? W : H * k, h = k > W / H ? W / k : H;
+    screen.style.width = `${Math.round(w)}px`; screen.style.height = `${Math.round(h)}px`;
+    sread.style.transform = `translateY(${Math.round(-(H - h) / 2)}px)`; // 讀數貼著幕的下緣走
+  };
+  fit(shapeK); addEventListener('resize', () => fit(shapeK));
+  // 換片：幕先暗一下，換上新片，再帶一點閃爍亮起來（像真的幻燈機）；畫幅不同時，幕在暗著的時候變形
+  let swapT = 0, litT = 0;
   const project = i => {
     if (i === onScreen) return;
     onScreen = i; slideNo = i + 1; ghost.classList.remove('on');
+    const w = WORKS[i], k = w ? SITE.ratio(w).k : shapeK, morph = Math.abs(k - shapeK) > .01; // 空格「製作中」不改形狀
+    clearTimeout(swapT); clearTimeout(litT);
     screen.classList.remove('flick'); screen.classList.add('dark');
-    setTimeout(() => {
-      const w = WORKS[i];
+    if (morph) { shapeK = k; fit(k); }
+    swapT = setTimeout(() => {
       if (w) { vid.poster = `media/${w.id}.webp`; vid.src = `media/${w.id}.mp4`; vid.play().catch(() => {}); } else { vid.pause(); vid.removeAttribute('src'); vid.removeAttribute('poster'); vid.load(); }
       text(i); readout();
-      screen.classList.remove('dark'); void screen.offsetWidth; screen.classList.add('flick');
     }, calm ? 0 : 160);
+    litT = setTimeout(() => { screen.classList.remove('dark'); void screen.offsetWidth; screen.classList.add('flick'); }, calm ? 0 : morph ? 520 : 170);
   };
   // 滑過別張：幕上淡淡浮出它的影子，像對焦前
   const preview = i => {
