@@ -314,7 +314,7 @@ footer { border-top: 1px solid var(--line); padding: 22px 0 40px; font-size: 12.
 :root[data-theme="dark"] .projector::before { display: none; }
 /* 幕的位子是固定的（--sw × --sh），幕在裡面照片子的畫幅變形：長邊撐滿，寬和高同時變；旁邊的字不會跟著跳 */
 .proj-screen { position: relative; z-index: 2; display: grid; grid-template-columns: var(--sw) minmax(0, 1fr); column-gap: 26px; align-items: center; --sw: clamp(250px, 27vw, 340px); --sh: 444px; }
-.screen-slot { grid-column: 1; width: var(--sw); height: var(--sh); display: grid; place-items: center; }
+.screen-slot { grid-column: 1; width: var(--sw); height: var(--sh); display: grid; place-items: center start; } /* 幕靠左：光束打的那一邊不動 */
 .screen { position: relative; display: block; width: 250px; height: 444px; border-radius: 4px; overflow: hidden; background: #0d1013; transform: perspective(900px) rotateY(-9deg); transform-origin: left center;
   box-shadow: 0 0 0 1px var(--faint), 0 0 70px 4px rgb(var(--beam) / .32), 0 30px 60px -30px rgba(15, 25, 50, .5); transition: filter .16s, box-shadow .6s, width .58s var(--ease), height .58s var(--ease); }
 .screen video, .screen .ghost { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
@@ -407,3 +407,13 @@ header.top::before { content: ""; position: absolute; top: 0; bottom: 0; left: 5
 .work.wide .stage { height: auto; width: min(100%, calc((100svh - 330px) * var(--k))); min-width: min(100%, 480px); }
 .work.wide > div { max-width: 760px; }
 @media (max-width: 860px) { .work.square .stage, .work.wide .stage { width: 100%; min-width: 0; height: auto; } }
+
+/* 說明欄跟著幕：位置由 JS 算（離幕右緣固定 26px），這裡管換片時的淡出淡入和不同畫幅的鬆緊 */
+.proj-text { max-width: 380px; transition: opacity .22s var(--ease), transform .5s var(--ease); }
+.proj-text.away { opacity: 0; transform: translateX(-8px); transition: opacity .16s, transform 0s .16s; }
+.proj-text[data-shape="tall"] h3 { margin-top: 18px; }
+.proj-text[data-shape="tall"] p { margin-top: 16px; line-height: 1.85; }
+.proj-text[data-shape="tall"] .p-go-link { margin-top: 26px; padding-top: 16px; }
+.proj-text[data-shape="wide"] h3 { margin-top: 8px; font-size: 26px; }
+.proj-text[data-shape="wide"] p { margin-top: 8px; line-height: 1.7; }
+.proj-text[data-shape="wide"] .p-go-link { margin-top: 12px; padding-top: 10px; }
