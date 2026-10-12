@@ -21,7 +21,11 @@ const ITEMS = (typeof BIN !== "undefined" && BIN) || [["小麻雀追袋記", 33,
 
 /** What each film's slide shows in its window, in the window's own units (u across, v up, 0 to 1): open lines and closed shapes. */
 const ring = (cu, cv, ru, rv, n = 14) => Array.from({ length: n }, (_, k) => [cu + Math.cos((k / n) * 6.283) * ru, cv + Math.sin((k / n) * 6.283) * rv]);
+// a phone in three layers, lifted apart up and to the right (an exploded stack)
+const layer = (u, v) => [[u, v], [u + 0.36, v + 0.1], [u + 0.36, v + 0.4], [u, v + 0.3]];
 const PICS = {
+  phone: { open: [[[0.2, 0.36], [0.28, 0.42]], [[0.56, 0.46], [0.6, 0.5]]],
+    shut: [layer(0.1, 0.06), layer(0.3, 0.3), layer(0.5, 0.54), ring(0.19, 0.17, 0.035, 0.035, 10), ring(0.78, 0.86, 0.03, 0.03, 10)] },
   // a sparrow chasing a striped bag up and away
   sparrow: { open: [[[0.17, 0.34], [0.06, 0.42]], [[0.44, 0.42], [0.5, 0.4]], [[0.66, 0.84], [0.7, 0.92], [0.74, 0.84]], [[0.8, 0.84], [0.84, 0.92], [0.88, 0.84]], [[0.48, 0.5], [0.52, 0.53]], [[0.55, 0.56], [0.59, 0.6]]],
     shut: [ring(0.29, 0.33, 0.12, 0.08), ring(0.39, 0.41, 0.055, 0.055, 10), [[0.62, 0.46], [0.92, 0.46], [0.88, 0.84], [0.66, 0.84]]] },
