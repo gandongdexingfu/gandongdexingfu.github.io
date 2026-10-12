@@ -1,5 +1,129 @@
 [
  {
+  "id": "iphone-2007",
+  "fig": "Fig 1.3",
+  "style": "等角拆解",
+  "date": "2026.10",
+  "title": "初代 iPhone",
+  "en": "The First iPhone, Taken Apart",
+  "blurb": "2007 年，手機的正面還有一半是按鍵。這支片從一台全鍵盤手機開始，鍵帽飛走、螢幕撐滿正面，鏡頭衝進玻璃看電容觸控怎麼算出手指的位置，最後把初代 iPhone 拆成九層，零件位置照著真實拆機照片一個一個換算。",
+  "spec": [
+   [
+    "類型",
+    "等角爆炸圖科普片"
+   ],
+   [
+    "長度",
+    "83 秒"
+   ],
+   [
+    "規格",
+    "1920 × 1080 · 24 fps"
+   ],
+   [
+    "資料",
+    "Apple 官方規格、iFixit 拆機、FCC 內部照片"
+   ],
+   [
+    "畫面",
+    "Anatomy 等角零件，代碼建模 144 件"
+   ],
+   [
+    "驗證",
+    "穿插、懸空、前後順序全部自動檢查為 0"
+   ],
+   [
+    "配樂",
+    "原創樂譜，CC0 樂器取樣＋代碼合成"
+   ]
+  ],
+  "chapters": [
+   [
+    0,
+    "全鍵盤手機"
+   ],
+   [
+    6.4,
+    "鍵帽飛走"
+   ],
+   [
+    13.8,
+    "衝進玻璃"
+   ],
+   [
+    16.3,
+    "安靜"
+   ],
+   [
+    17.0,
+    "第一次觸碰"
+   ],
+   [
+    22.2,
+    "捏合"
+   ],
+   [
+    25.2,
+    "正面與尺寸"
+   ],
+   [
+    33.8,
+    "背面"
+   ],
+   [
+    36.3,
+    "安靜"
+   ],
+   [
+    36.8,
+    "拆成九層"
+   ],
+   [
+    41.4,
+    "逐層看"
+   ],
+   [
+    58.9,
+    "主板"
+   ],
+   [
+    76.4,
+    "標題欄"
+   ]
+  ],
+  "how": "https://github.com/gandongdexingfu/lemo-opuscar/blob/main/mine/films/iphone-evolution/TREATMENT.md",
+  "code": "https://github.com/gandongdexingfu/lemo-opuscar/tree/main/mine/films/iphone-evolution",
+  "release": "https://github.com/gandongdexingfu/lemo-opuscar/releases/tag/iphone-2007-v1",
+  "bts": [
+   {
+    "title": "觸控的電子提示音",
+    "img": "ip-touch",
+    "at": 17.0,
+    "note": "第一次觸碰前，畫面和聲音一起靜下來 0.7 秒。然後一聲用代碼合成的提示音：調頻的鈴聲、一下次低頻，再加兩次回聲，像觸點被點亮後泛開的漣漪。",
+    "file": "mix.py",
+    "code": "def touch_tone(f=1318.5, v=1.0):\n    d = 1.6; x = t_(d)\n    mod  = 2.0 * env_exp(d, .08) * sin(2*pi * f * 1.5 * x)   # 調頻：一開始很亮\n    bell = sin(2*pi * f * x + mod) * env_exp(d, .35)\n    sub  = sin(2*pi * 55 * x) * env_exp(d, .07) * .6     # 次低頻：「碰到了」\n    y = bell + sub\n    out = y.copy()\n    for k, g in ((.18, .35), (.36, .15)):                 # 兩次回聲＝漣漪\n        n = int(k * SR); out[n:] += y[:-n] * g\n    return out"
+   },
+   {
+    "title": "照拆機照片換算位置",
+    "img": "ip-board",
+    "at": 58.9,
+    "note": "主板上每顆晶片、每道屏蔽隔間，都是從拆機照片上逐點量出來，再換算成機身上的毫米座標。兩張不同角度的照片對得上（排線頭和板上接頭只差約 1 mm），才算數；對不上的零件一律不畫。",
+    "file": "fig2.mjs",
+    "code": "// 通訊板照片旋轉 180°：像素 → 機身毫米（0.0725 mm/像素）\nconst cb = (gx, gy) => {\n  const px = 20 + gx / 2, py = 40 + gy / 2;\n  return [3.5 + (775 - px) * S, 20.7 + (470 - py) * S];\n};\nchipC(\"s-gold2\",  [130, 300],  [455, 625], 1.1, \"337S3235\");\nchipC(\"sky77340\", [1165, 190], [1430, 385], 1.0, \"SKY77340\");\nchipC(\"w8686\",    [620, 525],  [780, 655], 0.8, \"W8686\");"
+   },
+   {
+    "title": "先疊成塔，再發牌",
+    "img": "ip-tower",
+    "at": 36.8,
+    "note": "每個零件畫的同時，把真實形狀登記給檢查器。原本各組直接橫著滑開，檢查器抓到 88 處零件互相穿過；改成先垂直升起疊成塔、再在各自高度滑開之後，逐幀重放全部為 0。",
+    "file": "build.mjs",
+    "code": "for (const ph of [\"A\", \"B\", \"C\"]) {        // 抬升 → 發牌 → 分層\n  const R = A.recorder(P);\n  fig2(P, R, PHASES[ph]);                  // 邊畫邊登記形狀\n  A.settle(R, P, { states });               // 算出每一幀誰在前面\n  const r = A.audit(R, P, { frames });      // 穿插、懸空、端點、前後順序\n  if (A.failures(r)) failed++;\n}\n// ALL PHASES PASSED"
+   }
+  ],
+  "ratio": "16:9",
+  "thumb": "phone"
+ },
+ {
   "id": "taiwan-sparrow",
   "fig": "Fig 1.2",
   "style": "照片塗鴉",
