@@ -1,6 +1,6 @@
 // figures.js — 把 hairline 線稿圖掛到網站上
 // 引擎 assets/hairline/kernel.js 來自 github.com/lucasmarkes/hairline（MIT，見 assets/hairline/LICENSE），原封不動；
-// 圖（frame / board / lamps / reel）是這個網站自己畫的，每張都照它的十條規則。
+// 圖（frame / board / lamps / reel / hotpot）是這個網站自己畫的，每張都照它的十條規則。
 // 圖檔最後一行呼叫 hairline({...})：這裡先接住，等頁面需要時再掛上去。
 window.FIGS = window.FIGS || {};
 window.hairline = fig => { window.FIGS[fig.name] = fig; };

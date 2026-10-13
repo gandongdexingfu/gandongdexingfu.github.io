@@ -35,7 +35,11 @@
       <h1>重慶火鍋</h1>
       <div class="en">Chongqing Hotpot, Alive</div>
       <p class="lede">冷凍庫裡發抖的肥牛卷，跟著牛油大叔、辣椒花椒、毛肚、鴨血豆腐和蒜蔥，一起泡進重慶紅湯。這支片的畫面由 MiniMax 圖生視頻生成，剪接、節拍、轉場、配樂和音效全部由代碼完成；最後的蒸氣變回冷凍庫的霜，22 秒無縫循環。</p>
-      
+      <figure class="fig work-fig" id="wfig" data-label="一張火鍋桌：冷凍庫、大鍋、筷子、油碟，蒸氣再飄回冷凍庫。">
+        <div class="fig-head"><span>Fig 1.4.0　一鍋的循環</span><span class="fig-read" aria-live="polite"></span></div>
+        <div class="fig-stage"></div>
+        <figcaption><span>片裡的十一段，照肥牛卷的旅程擺上桌：冷凍庫出發，泡進紅湯，跳上油碟，再隨蒸氣回到冷凍庫。點一站，影片跳到那一段；播放時，肥牛卷跟著片子走。</span><button class="play mini" type="button" aria-label="播放（有聲）"></button></figcaption>
+      </figure>
       <ol class="chapters" aria-label="章節，點一下跳到那一段">
 <li><button type="button" data-t="0"><span>00:00.0</span><span>冷凍庫</span></button></li>
 <li><button type="button" data-t="2.0"><span>00:02.0</span><span>牛油泡溫泉</span></button></li>
@@ -102,7 +106,7 @@ vf += &quot;,fade=t=out:st={D-0.5}:d=0.5:color=0xEEF4FF&quot;
   </footer>
 </div>
 <script src="../../assets/site.js"></script>
-
+<script src="../../assets/hairline/kernel.js"></script><script src="../../assets/figures.js"></script><script src="../../assets/hairline/hotpot.js"></script>
 <script>
 SITE.load('../../').then(([WORKS, FP]) => {
   const host = document.getElementById('player'), w = WORKS.find(x => x.id === host.dataset.id);
