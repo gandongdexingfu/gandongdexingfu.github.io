@@ -51,7 +51,7 @@ for n, w in enumerate(works):
 <meta name="theme-color" content="#E9ECEC">
 <meta property="og:type" content="video.other">
 <meta property="og:site_name" content="感動的幸福">
-<meta property="og:title" content="{e(w['title'])} · 每一幀都由代碼畫成">
+<meta property="og:title" content="{e(w['title'])} · {e(w.get('tagline', '每一幀都由代碼畫成'))}">
 <meta property="og:description" content="{e(w['blurb'])}">
 <meta property="og:url" content="{SITE}works/{w['id']}/">
 <meta property="og:image" content="{SITE}media/{w['id']}.jpg">
@@ -92,7 +92,7 @@ for n, w in enumerate(works):
 
   <nav class="next">{nav}</nav>
   <footer id="about">
-    <span>照片由 AI 生成；畫面、音效與配樂由代碼生成。</span>
+    <span>{e(w.get('credit', '照片由 AI 生成；畫面、音效與配樂由代碼生成。'))}</span>
     <span>© 2026 gandongdexingfu</span>
   </footer>
 </div>
