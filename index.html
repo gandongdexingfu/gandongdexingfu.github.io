@@ -106,7 +106,7 @@
     <h2 id="about-h">關於</h2>
     <div class="about-body">
       <p class="lead">我是感動的幸福，白天是工程師，業餘用 AI 和代碼做影片。</p>
-      <p>這裡每一支片的畫面、音效和配樂都由代碼生成，<span class="nb">做法和原始碼全部公開。</span></p>
+      <p>這裡每一支片的剪接、音效和配樂都由代碼完成，多數畫面也由代碼畫成，<span class="nb">做法和原始碼全部公開。</span></p>
       <p class="en">An engineer making films where every frame is drawn in code. Methods and source are open.</p>
     </div>
     <dl class="contact">
@@ -120,7 +120,7 @@
   </section>
 
   <footer>
-    <span>照片由 AI 生成；畫面、音效與配樂由代碼生成。配樂取樣來自 CC0 樂器庫。</span>
+    <span>照片與部分畫面由 AI 生成（ChatGPT、MiniMax）；其餘畫面、音效與配樂由代碼生成。配樂取樣來自 CC0 樂器庫。</span>
     <span>© 2026 gandongdexingfu</span>
   </footer>
 </div>
@@ -155,7 +155,7 @@ document.querySelectorAll('.reveal').forEach(watch);
 SITE.load('').then(([WORKS, FP]) => {
   const grid = document.getElementById('grid');
   const total = WORKS.reduce((a, w) => a + FP[w.id].dur, 0);
-  document.getElementById('stat').textContent = `${WORKS.length} 支片 · 共 ${Math.floor(total / 60)} 分 ${Math.round(total % 60)} 秒 · 每一幀都是代碼`;
+  document.getElementById('stat').textContent = `${WORKS.length} 支片 · 共 ${Math.floor(total / 60)} 分 ${Math.round(total % 60)} 秒 · 代碼參與每一幀`;
   // 風格篩選：從作品資料自動長出按鈕
   const bar = document.getElementById('filters'), styles = [...new Set(WORKS.map(w => w.style))];
   const mk = (label, key, n) => { const b = document.createElement('button'); b.type = 'button'; b.dataset.key = key; b.setAttribute('aria-pressed', key === '*'); b.innerHTML = `${label}<span>${n}</span>`; bar.appendChild(b); };
@@ -196,7 +196,8 @@ SITE.load('').then(([WORKS, FP]) => {
     $('.p-title').textContent = w.title; $('.p-en').textContent = w.en; $('.p-blurb').textContent = w.blurb;
     $('.p-go').textContent = '點幕進入'; $('.p-meta').textContent = `${FP[w.id].dur.toFixed(0)} 秒 · ${w.chapters.length} 段`;
   };
-  const readout = () => { const w = WORKS[onScreen], D = w ? FP[w.id].dur : 0; sread.textContent = `SLIDE ${String(slideNo).padStart(2, '0')} · ${mmss(w ? vid.currentTime : 0)} / ${mmss(D)} · 24 fps`; };
+  const fps = w => { const m = /(\d+)\s*fps/.exec(((w && w.spec) || []).map(r => r[1]).join(' ')); return m ? m[1] : 24; };
+  const readout = () => { const w = WORKS[onScreen], D = w ? FP[w.id].dur : 0; sread.textContent = `SLIDE ${String(slideNo).padStart(2, '0')} · ${mmss(w ? vid.currentTime : 0)} / ${mmss(D)} · ${fps(w)} fps`; };
   vid.addEventListener('timeupdate', readout);
   // 幕的形狀跟著片子的畫幅：在固定的位子裡長邊撐滿，寬和高一起變（CSS 的 transition 負責滑順）
   const slot = screen.parentElement;

@@ -1,5 +1,123 @@
 [
  {
+  "id": "chongqing-hotpot",
+  "fig": "Fig 1.4",
+  "style": "AI 擬人",
+  "date": "2026.10",
+  "title": "重慶火鍋",
+  "en": "Chongqing Hotpot, Alive",
+  "blurb": "冷凍庫裡發抖的肥牛卷，跟著牛油大叔、辣椒花椒、毛肚、鴨血豆腐和蒜蔥，一起泡進重慶紅湯。這支片的畫面由 MiniMax 圖生視頻生成，剪接、節拍、轉場、配樂和音效全部由代碼完成；最後的蒸氣變回冷凍庫的霜，22 秒無縫循環。",
+  "tagline": "AI 畫面＋代碼後期",
+  "credit": "畫面由 MiniMax 圖生視頻生成，首幀圖由 ChatGPT 生成；剪接、音效與配樂由代碼完成。",
+  "spec": [
+   [
+    "類型",
+    "AI 視頻擬人片"
+   ],
+   [
+    "長度",
+    "22 秒，無縫循環"
+   ],
+   [
+    "規格",
+    "1080 × 1920 · 30 fps"
+   ],
+   [
+    "畫面",
+    "MiniMax 圖生視頻 10 段，首幀 ChatGPT 生成"
+   ],
+   [
+    "代碼",
+    "按 120 BPM 剪接、溶接、循環轉場、封面金字"
+   ],
+   [
+    "配樂",
+    "代碼合成原創樂譜，五聲音階"
+   ],
+   [
+    "音效",
+    "代碼合成＋Freesound CC0 錄音"
+   ]
+  ],
+  "chapters": [
+   [
+    0,
+    "冷凍庫"
+   ],
+   [
+    2.0,
+    "牛油泡溫泉"
+   ],
+   [
+    4.0,
+    "紅湯派對"
+   ],
+   [
+    6.0,
+    "筷子跳水板"
+   ],
+   [
+    8.0,
+    "撲通"
+   ],
+   [
+    10.0,
+    "七上八下"
+   ],
+   [
+    12.0,
+    "鴨血豆腐"
+   ],
+   [
+    14.0,
+    "油碟跳水隊"
+   ],
+   [
+    16.0,
+    "飛撲油碟"
+   ],
+   [
+    18.0,
+    "大合照"
+   ],
+   [
+    21.0,
+    "回到冷凍庫"
+   ]
+  ],
+  "how": "https://github.com/gandongdexingfu/lemo-opuscar/blob/main/mine/films/chongqing-hotpot/TREATMENT.md",
+  "code": "https://github.com/gandongdexingfu/lemo-opuscar/tree/main/mine/films/chongqing-hotpot",
+  "release": "https://github.com/gandongdexingfu/lemo-opuscar/tree/assets/chongqing-hotpot",
+  "bts": [
+   {
+    "title": "七上八下，每一下都有聲音",
+    "img": "hp-bungee",
+    "at": 10.3,
+    "note": "MiniMax 生成的毛肚彈了五、六下，大約一秒一下。剪接時加速兩倍，變成半拍一下；再逐幀找出每次「浸到底」的時間，在那一幀之後一格放入水聲，0.18 秒後接一聲彈簧 boing。",
+    "file": "audio.py",
+    "code": "D1 = 1/30  # 聲音比畫面晚一幀\nfor t in (10.3, 10.9, 11.5):          # 逐幀找到的三次浸湯\n    put(sfx, splash(0.4), t + D1, 0.35)\n    put(sfx, boing(170, 0.45), t + 0.18 + D1, 0.32)\n\ndef boing(f=180, d=0.6):\n    t = t_(d)\n    fr = f*(1 + 0.35*np.sin(2*np.pi*14*t)*np.exp(-4*t)) + f*0.6*np.exp(-12*t)\n    return np.sin(2*np.pi*np.cumsum(fr)/SR) * env(d, 0.003, d, 4)"
+   },
+   {
+    "title": "撞擊落在拍點上",
+    "img": "hp-splash",
+    "at": 16.5,
+    "note": "肥牛落進油碟的那一下，是配樂從輕節拍轉成全編制的重拍。第一版素材入點在 0.5 秒，落油在 16.4 秒，早了三幀；入點改成 0.4 秒，撞擊剛好落在第 33 拍（16.5 秒）。",
+    "file": "cut.py",
+    "code": "# (素材, 入點, 出點, 在片中佔的秒數)\n(\"s05_cannonball.mp4\",   0.5, 3.5, 2.0),   # 入水落在 8.0 秒\n(\"s06_tripe_bungee.mp4\", 0.5, 4.5, 2.0),   # 2× 加速\n(\"s09_beef_to_dish.mp4\", 0.4, 2.4, 2.0),   # 落油對 16.5 秒拍點\n\nsp = (b - a) / d                            # 變速倍率\nvf = f\"trim={a}:{b},setpts=(PTS-STARTPTS)/{sp},fps=30\""
+   },
+   {
+    "title": "蒸氣變回霜：無縫循環",
+    "img": "hp-loop",
+    "at": 21.0,
+    "note": "最後一鏡讓 MiniMax 把畫面蒸成一片白；代碼再淡到冰白色，接上第一鏡冷凍庫的前一秒素材，淡入後正好接回片頭那一格。配樂也渲染兩輪取第二輪，尾音自然繞回開頭。",
+    "file": "cut.py",
+    "code": "# 第 10 鏡最後 0.5 秒淡到冰白\nvf += \",fade=t=out:st={D-0.5}:d=0.5:color=0xEEF4FF\"\n# 循環段：取第 1 鏡素材 2.8–3.8 秒，從冰白淡入\n# 片頭從 3.8 秒開始 → 結尾的最後一格接得上\n\"trim=2.8:3.8,...,fade=t=in:st=0.1:d=0.9:color=0xEEF4FF\""
+   }
+  ],
+  "ratio": "9:16",
+  "thumb": "hotpot"
+ },
+ {
   "id": "iphone-2007",
   "fig": "Fig 1.3",
   "style": "等角拆解",

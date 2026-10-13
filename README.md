@@ -15,9 +15,9 @@
 1. 壓網頁版影片：`ffmpeg -i 成片.mp4 -vf scale=540:960 -c:v libx264 -crf 26 -preset slow -movflags +faststart -c:a aac -b:a 96k media/<id>.mp4`
 2. 截封面：`ffmpeg -ss <秒> -i media/<id>.mp4 -frames:v 1 -q:v 3 media/<id>.jpg`，再轉一份 `media/<id>.webp`。
 3. 算指紋：`python3 tools/fingerprint.py <id>`。
-4. 在 `works.json` 加一筆：`id`、`fig`、`style`（風格標籤，篩選按鈕會自動長出來）、`date`、`title`、`en`、`blurb`、`spec`、`chapters`、`how`、`code`、`release`，以及三組 `bts`（title、note、file、code、img、at）。配圖放 `media/bts/<img>.webp`（720×900）。
+4. 在 `works.json` 加一筆（畫面不是代碼畫的作品，另加 `tagline` 與 `credit` 改寫作品頁的分享標題與頁尾）：`id`、`fig`、`style`（風格標籤，篩選按鈕會自動長出來）、`date`、`title`、`en`、`blurb`、`spec`、`chapters`、`how`、`code`、`release`，以及三組 `bts`（title、note、file、code、img、at）。配圖放 `media/bts/<img>.webp`（720×900）。
 5. 線稿圖（可選）：用 hairline 的 `hairline-create` 技能畫一張，放 `assets/hairline/<名>.js`；讀數寫成 `01 · <章節名>`，名字和 `chapters` 一致，點圖就能跳到那一段，播放時圖也會跟著走。在 `works.json` 加 `figure`（name、title、label、rest、cap）。
 6. 產生作品頁：`python3 tools/build_pages.py`。
 
 ## 授權
-網站代碼 MIT。線稿引擎 `assets/hairline/kernel.js` © Lucas Marques，MIT。影片中的照片由 AI 生成；畫面、音效與配樂由代碼生成，配樂取樣來自 CC0 樂器庫。
+網站代碼 MIT。線稿引擎 `assets/hairline/kernel.js` © Lucas Marques，MIT。影片中的照片由 AI 生成（ChatGPT）；《重慶火鍋》的畫面由 MiniMax 圖生視頻生成，其餘作品的畫面、所有作品的剪接、音效與配樂由代碼生成，配樂取樣來自 CC0 樂器庫。
