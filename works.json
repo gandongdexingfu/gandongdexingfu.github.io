@@ -1,5 +1,113 @@
 [
  {
+  "id": "csk-ia",
+  "fig": "Fig 1.5",
+  "style": "等角拆解",
+  "date": "2026.10",
+  "title": "CSK-IA 標準試塊",
+  "en": "The CSK-IA Calibration Block",
+  "blurb": "CSK-IA 是超聲檢測用來校準儀器的標準試塊。照 NB/T 47013.3 的圖紙一比一建模，用一塊鋼依序示範：怎麼找斜探頭的入射點、量前沿長度、測 K 值，再用直探頭把時基線調到 1:4。每一段距離都用橙色尺寸線畫出來，右上角同步寫出算式。",
+  "spec": [
+   [
+    "類型",
+    "等角說明片（Anatomy 互動圖錄製）"
+   ],
+   [
+    "長度",
+    "66 秒"
+   ],
+   [
+    "規格",
+    "1920 × 1080 · 30 fps"
+   ],
+   [
+    "資料",
+    "NB/T 47013.3-2023 圖 13、《超聲檢測》第二版"
+   ],
+   [
+    "畫面",
+    "Anatomy 等角零件，逐幀確定性渲染"
+   ],
+   [
+    "標註",
+    "尺寸線逐筆畫出＋右上角逐行算式"
+   ],
+   [
+    "配樂",
+    "代碼合成原創氛圍樂"
+   ]
+  ],
+  "chapters": [
+   [
+    0,
+    "片頭"
+   ],
+   [
+    3.4,
+    "兩層圓弧"
+   ],
+   [
+    8.0,
+    "① 入射點"
+   ],
+   [
+    16.6,
+    "② 前沿長度"
+   ],
+   [
+    23.6,
+    "③ K 值"
+   ],
+   [
+    35.2,
+    "④ 時基線 1:4"
+   ],
+   [
+    47.3,
+    "跨台階"
+   ],
+   [
+    53.0,
+    "φ50 孔遮擋"
+   ],
+   [
+    59.6,
+    "自己動手試試"
+   ]
+  ],
+  "how": "https://github.com/gandongdexingfu/lemo-opuscar/blob/main/mine/films/csk-ia/README.md",
+  "code": "https://github.com/gandongdexingfu/lemo-opuscar/tree/main/mine/films/csk-ia",
+  "release": "https://github.com/gandongdexingfu/lemo-opuscar/tree/assets/csk-ia",
+  "bts": [
+   {
+    "title": "兩層台階，兩段圓弧",
+    "img": "csk-layers",
+    "at": 3.5,
+    "note": "試塊右端其實是兩層：後面 20 mm 那層伸到 R100，前面 5 mm 那層只到 R50，經 R10 圓角接一條徑向直邊。兩層各寫成一條 x–z 輪廓，沿厚度方向擠出成稜柱，前面那層後畫，台階就自然出現；斜探頭的聲束同時照到兩層，所以螢幕上會有 R50、R100 兩個回波。",
+    "file": "build.mjs",
+    "code": "// 後面 20 mm 層：底邊＋R100 圓弧\nconst PROF_A = [...FOOT_LINE, ...arcPts(200, 100, 100, TH0, 0, 60), [0, 100]];\n// 前面 5 mm 層：徑向直邊 → R10 圓角 → R50 圓弧\nconst PROF_B = [...FOOT_LINE, R100_END, T_LINE,\n  ...arcPts(FC[0], FC[1], 10, aLine, aArc, 10),\n  ...arcPts(200, 100, 50, PHI, 0, 34), [0, 100]];\nblock += prismY(PROF_A, 10, 30);   // 先畫後層\nblock += prismY(PROF_B, 30, 35);   // 再畫前層，台階就出來了"
+   },
+   {
+    "title": "波高＝晶片底下的面積",
+    "img": "csk-echo",
+    "at": 41.7,
+    "note": "直探頭的 φ20 晶片切成 41 條，看每一條正下方先碰到什麼：100 mm 底面、91 mm 底面、85 mm 槽頂，或 φ50 孔頂。同一深度的面積加起來就是波高，所以跨在台階上會同時看到 85、91、100 三個回波，槽頂只有 2 mm 寬，回波最小。這是示意模型，不是聲場計算。",
+    "file": "build.mjs",
+    "code": "for (let i = 0; i < 41; i++) {\n  const u = -R + (2 * R * (i + 0.5)) / 41;        // 晶片上的第 i 條\n  const wgt = Math.sqrt(1 - (u / R) ** 2);       // 圓晶片：中間寬、兩邊窄\n  const xs = x + u, dh = xs - 35;\n  const depth = Math.abs(dh) < 25 ? 30 - Math.sqrt(625 - dh * dh) // φ50 孔頂\n              : xs < 200 ? 100 : xs <= 202 ? 85 : xs < 241.5 ? 91 : null;\n  if (depth !== null) add(depth, wgt);           // 同深度的面積加起來＝波高\n}"
+   },
+   {
+    "title": "尺寸線一筆一筆畫出來",
+    "img": "csk-dims",
+    "at": 17.4,
+    "note": "每條尺寸線都用試塊的真實座標（毫米）寫，投影到等角畫面，鏡頭推近時跟著一起放大。線段按螢幕長度畫到進度 p，過半才淡入標籤；l₀ 先顯示「?」，等右上角算式算到最後一行才揭曉 12。",
+    "file": "record.mjs",
+    "code": "// 真實座標（mm），進度 p 由時間決定\nA.push({ k: \"dim\", a: [212, 30, 128], b: [300, 30, 128], p: pr(t, 17.4), label: \"M = 88\" });\nA.push({ k: \"dim\", a: [200, 30, 142], b: [300, 30, 142], p: pr(t, 18.6), label: \"R = 100\" });\nA.push({ k: \"dim\", a: [200, 30, 128], b: [212, 30, 128], p: pr(t, 19.8),\n         label: t < 21.2 ? \"l₀ = ?\" : \"l₀ = 12\" });   // 21.2 秒才揭曉"
+   }
+  ],
+  "ratio": "16:9",
+  "thumb": "block"
+ },
+ {
   "id": "chongqing-hotpot",
   "fig": "Fig 1.4",
   "style": "AI 擬人",

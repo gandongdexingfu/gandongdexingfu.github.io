@@ -12,7 +12,7 @@
 - `media/`：網頁版影片、封面、指紋資料、分享卡片；`media/bts/`：「代碼 → 畫面」的配圖。
 
 ## 新增一支作品
-1. 壓網頁版影片：`ffmpeg -i 成片.mp4 -vf scale=540:960 -c:v libx264 -crf 26 -preset slow -movflags +faststart -c:a aac -b:a 96k media/<id>.mp4`
+1. 壓網頁版影片：`ffmpeg -i 成片.mp4 -vf scale=540:960 -c:v libx264 -crf 26 -preset slow -movflags +faststart -c:a aac -b:a 96k media/<id>.mp4`（直式；橫式 16:9 改 `scale=960:540`，並在 `works.json` 寫 `"ratio": "16:9"`，其他畫幅同理）
 2. 截封面：`ffmpeg -ss <秒> -i media/<id>.mp4 -frames:v 1 -q:v 3 media/<id>.jpg`，再轉一份 `media/<id>.webp`。
 3. 算指紋：`python3 tools/fingerprint.py <id>`。
 4. 在 `works.json` 加一筆（畫面不是代碼畫的作品，另加 `tagline` 與 `credit` 改寫作品頁的分享標題與頁尾）：`id`、`fig`、`style`（風格標籤，篩選按鈕會自動長出來）、`date`、`title`、`en`、`blurb`、`spec`、`chapters`、`how`、`code`、`release`，以及三組 `bts`（title、note、file、code、img、at）。配圖放 `media/bts/<img>.webp`（720×900）。
