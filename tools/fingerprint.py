@@ -1,6 +1,6 @@
 """計算影片指紋（音量波形＋安靜段），寫進 media/fingerprints.json
 用法（在網站倉庫根目錄）：python3 tools/fingerprint.py <id> [<id> ...]   # 讀 media/<id>.mp4
-需要 ffmpeg、numpy。章節（chapters）不在這裡算，寫在 index.html 的 WORKS 裡。"""
+需要 ffmpeg、numpy。章節（chapters）不在這裡算，寫在 works.json 的 chapters 裡。"""
 import json, re, subprocess, sys
 from pathlib import Path
 import numpy as np

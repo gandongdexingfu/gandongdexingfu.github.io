@@ -8,7 +8,7 @@
 - `works/<id>/index.html`：每支片的作品頁，由 `tools/build_pages.py` 產生，不要手改。
 - `assets/site.css`、`assets/site.js`：共用的樣式與「影片指紋＋滑過拖動」元件。
 - `404.html`：找不到頁面時顯示（空片盤）。
-- `assets/hairline/`：線稿圖。`kernel.js` 是 [hairline](https://github.com/lucasmarkes/hairline) 的引擎（MIT，原封不動，授權見同資料夾 `LICENSE`）；`frame.js`（首頁：一幀的五層）、`board.js`（小麻雀：圖鑑的十格）、`lamps.js`（光的演變：七盞光）、`reel.js`（404：空片盤）是本站自己畫的。`assets/figures.js` 把它們掛到頁面上，換成網站色票，讀數翻成中文。
+- `assets/hairline/`：線稿圖。`kernel.js` 是 [hairline](https://github.com/lucasmarkes/hairline) 的引擎（MIT，原封不動，授權見同資料夾 `LICENSE`）；`frame.js`（首頁：一幀的五層）、`carousel.js`（首頁：幻燈片轉盤＋片窗縮圖）、`hotpot.js`（重慶火鍋）、`board.js`（小麻雀：圖鑑的十格）、`lamps.js`（光的演變：七盞光）、`reel.js`（404：空片盤）是本站自己畫的。`assets/figures.js` 把它們掛到頁面上，換成網站色票，讀數翻成中文。
 - `media/`：網頁版影片、封面、指紋資料、分享卡片；`media/bts/`：「代碼 → 畫面」的配圖。
 
 ## 新增一支作品
